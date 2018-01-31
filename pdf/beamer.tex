@@ -24,22 +24,30 @@
   自動運転の研究開発においてデータセットの作成やVirtual EvaluationなどでGANが用いられることが増えてきた。
 \end{frame}
 
-\begin{frame}{本研究の目的}
+\begin{frame}{背景2}
+  \begin{itemize}
+  \item 高解像度の町並みの生成
+  \item 生成する画像のコントロール
+  \item 自動車のシミュレータのリアリスティック化
+  \end{itemie}
+\end{frame}
 
+\begin{frame}{本研究の目的}
   \begin{itemize}
   \item GANの問題点であるMode Collapseの回避
   \item 多様な表現を出力するGANの生成
   \end{itemize}
-
 \end{frame}
 
 \begin{frame}{関連研究}
 
-  \begin{block}{Unrolled}
-    Visual Question Answering(VQA)に対する答えの解釈性を高めたVickiを提案。Vickiの答えをGrad-CAMおよび類似手法であるco attentionで可視化し、
-    モデルを評価した。
+  \begin{block}{Unrolled GAN\cite{unrolled}}
+    Generatorを未来のDiscrimiantorを騙せるように学習させることでMode Collapseを回避することに成功.
   \end{block}
 
+  \begin{block}{PacGAN\cite{pacgan}}
+    Discriminatorが真偽を判定するのに一枚ずつ行っていたのをバッチごとに行うようにした. 分布をより正確に捉えられるようになった.
+  \end{block}
 \end{frame}
 
 
@@ -49,7 +57,7 @@
 
 \begin{eqnarray}
   \label{unshare}
-  \tilde{\mathcal{L}}(w; X, y, w') =  \frac{\alpha}{2} (w - w')^{\top}(w - w')+ \mathcal{L}(w; X, y)  
+  \tilde{\mathcal{L}}(w; X, y, w') =  (\frac{\alpha}{2} (w - w')^{\top}(w - w'))^{-1} + \mathcal{L}(w; X, y)  
 \end{eqnarray}
 
 
@@ -60,18 +68,32 @@
 \begin{frame}{実験}
   多項式フィッテイング \\
   $X = {1, 2, 3, 4, 5,...}, y = {4, 16, 36, 64, 100,..}$. \\
-  $y = (2x)^{2}$もしくは$y = (-2x)^{2}$.
-\end{frame}
-\begin{frame}
-  GAN（混合正規分布）
-  平均をずらした正規分布の混合分布から生成させたデータを生成させる。
-  2,3,4つの正規分布の混合分布を生成させた.
+  $y = (2x)^{2}$もしくは$y = (-2x)^{2}$. \\
+  目的関数は
+  
+  \begin{eqnarray}
+    \label{regression}
+    \mathcal{L}(w; X, y, w') =  \frac{\alpha}{2} (w - w')^{\top}(w - w') + (f(X) - y)^{2} 
+  \end{eqnarray}      
 \end{frame}
 
 \begin{frame}
+  GAN（混合正規分布）
+  平均をずらした正規分布の混合分布から生成させたデータを生成させる。  
+  2,3,4つの正規分布の混合分布を生成させた. \\
+  目的関数は
+  
+  \begin{eqnarray}
+    \label{gan}
+    \mathcal{L}(\theta_{G}, \theta_{D}, \theta'_{G}) &  = &  \frac{\alpha}{2} (\theta_{G} - \theta'_{G})^{\top}(\theta_{G} - \theta'_{G})   +  \mathbb{E}_{x\sim p_{data}} [ \log(D(x; \theta_{D})) ]   \nonumber \\
+    & & + \mathbb{E}_{z\sim \mathcal{N}(0, I)} [ \log(1 - D(G(z;\theta_{G}); \theta_{D})) ]
+  \end{eqnarray}        
+\end{frame}
+
+\begin{frame}{2 mixture distribution}
   \begin{figure}[htb]
     \begin{center}
-      \includegraphics[width=10cm]{2_mixture_true.png}
+      \includegraphics[height=7cm]{2_mixture_true.png}
     \end{center}
   \end{figure}
 \end{frame}
@@ -85,10 +107,10 @@
   
 \end{frame}
 
-\begin{frame}
+\begin{frame}{3 mixture distribution}
   \begin{figure}[htb]
     \begin{center}
-      \includegraphics[width=\linewidth]{3_mixture_true.png}
+      \includegraphics[height=7cm]{3_mixture_true.png}
     \end{center}
   \end{figure}
 \end{frame}
@@ -101,10 +123,10 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{4 mixture distribution}
   \begin{figure}[htb]
     \begin{center}
-      \includegraphics[width=\linewidth]{4_mixture_true.png}
+      \includegraphics[height=7cm]{4_mixture_true.png}
     \end{center}
   \end{figure}
 \end{frame}
@@ -127,11 +149,10 @@
 
 \begin{frame}{今後の展望}
   \begin{itemize}
-  \item 今回はFeed Forward Network及び単純なGenerative Adversarial Networkにおいて提案手法が有効であることを検証した.
-    今後は画像を生成するような複雑なGANについても検証していく必要がある.
+  \item 今回はMLP及び単純なGANにおいて提案手法が有効であることを検証したが, 画像を生成するような複雑なGANでも検証が不十分.
   \item 他の安定化手法との比較が不十分であるため要検証.
-  \item 他の安定化手法と組み合わせた際に同様の分布を捉えているものの、若干異なる表現を行うように学習することが確認できた.
-    この特性がデータセットの拡充などに利用できるか検証する必要がある.
+  \item 他の安定化手法と組み合わせた際に同様の分布を捉えつつ、異なる表現を獲得することが確認できた.
+    この特性がデータセットの拡充などに利用できるか検証を行う.
   \end{itemize}
 \end{frame}
 
