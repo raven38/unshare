@@ -1,0 +1,68 @@
+\documentclass[techrep, submit, noauthor,preface]{ipsj}
+%\documentclass{ipsj}
+ 
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\graphicspath{{./img/}}
+
+\def\Underline{\setbox0\hbox\bgroup\let\\\endUnderline}
+\def\endUnderline{\vphantom{y}\egroup\smash{\underline{\box0}}\\}
+\def\|{\verb|}
+
+\pagestyle{empty}
+\begin{document}
+
+\title{Parameter Unsharingを用いたMode Collapseの回避}
+
+\paffiliate{EI}{慶應義塾大学 環境情報学部}
+\paffiliate{GM}{慶應義塾大学 政策メディア研究科}
+
+\author{勝又 海}{}{EI}
+\author{小林 凌雅}{}{GM}
+
+\maketitle
+\thispagestyle{empty} 
+%1
+\section{序論}
+
+自動運転の研究開発において、virtual evaluationを行うことは非常に重要である。virtual evaluationではGANを用いてシミュレーション環境をより現実的にしたり、データセットを拡充したりすることも多い。我々はGANの安定化の手法としてparameter unsharingを提案した。GANにはいくつかの問題が存在し、研究開発の発展を妨げている。1つはGANはGeneratorとDiscriminatorがお互いに競合しあい学習していく手法であり、収束しないことがある。また、Collapseという現象により、訓練に利用したデータとは似ても似つかない出力をするようになったり、定数を出力するようになったりする。これらを回避する手法としてWGANやPacGANなどが提案されている。Parameter Unsharingでは学習の際に過去に学習したモデルの重みから遠ざかるように学習させることで別の最適解へ収束させる手法である。GANのような複雑なモデルの重み空間には多くの局所最適解が存在する。分類や回帰であればどの局所最適解であってもlossに応じたaccuracyが得られるが、GANの場合には同じlossであったとしても全く異なる出力をすることが考えられる。この手法では別の最適解を探索させることでより良い出力をするモデルを得られる。
+
+\section{関連研究}
+
+{\bf Avoid Collapse on GANs}Collapseを回避する方法としてWGANなどが存在する。
+
+{\bf Regularization}ニューラルネットワークの文脈で使われることはそう多くはないが統計学の分野ではParameter Sharing\cite{deeplearningbook}と呼ばれる手法が使われることがある。これはモデルを学習させる際に別のモデルの重みに近づくように学習させる手法である。
+
+\section{手法}
+
+\begin{eqnarray}
+  \label{unshare}
+  \tilde{\mathcal{L}}(w; X, y, w') =  \frac{\alpha}{2} (w - w')^{\top}(w - w')+ \mathcal{L}(w; X, y)  
+\end{eqnarray}
+
+
+を最適化する。過去のモデルから遠ざけると、もっとも距離が大きくなるのは重みの値が無限大のときである。重みが無限になった場合、lossは大きくなる。これを回避するために重み減衰の項を追加する。
+
+
+{\bf Parameter Unsharing with MLP}
+
+{\bf Parameter Unsharing with GANs}
+
+\section{実験}
+
+{\bf 多項式フィッテイング}
+最適解が複数ある関数の当てはめを行った。今回試したのは$y = ((2or-1)x)^2$である。パーセプトロンを確率的勾配法を用いて最適化を行った。Parameter Unsharingを使わずに最適化を行った場合には重みはランダムに-2もしくは2の値を取った。Parameter Unsharingを用いて最適化を行った場合は遠ざける対象のモデルの重みとは別の符号の値を取った。
+
+{\bf GAN}
+
+
+\section{今後の展望}
+
+我々は提案した手法を用いて異なる最適解の探索が可能であることを検証した。今回、いくつかのモデルに対して適用し、検証を行ったが、他のモデルに対する検証が不十分である。また、学習の安定化に寄与する他の手法との比較が行えていない。他の手法との比較を行うevaluation metricについても研究し、他の手法との比較を行う必要があるo。
+
+\bibliographystyle{ipsjsort}
+\bibliography{jsample}
+
+
+\end{document}

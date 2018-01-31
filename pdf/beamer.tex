@@ -1,0 +1,144 @@
+\documentclass[dvipdfmx,12pt,unicode]{beamer}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\graphicspath{{./img/}}
+\usetheme{CambridgeUS}
+\usecolortheme{dolphin}
+\setbeamertemplate{footline}[frame number]
+\logo{\includegraphics[width=1cm]{img/logo.png}}
+
+\usefonttheme{professionalfonts}
+
+\title{Parameter Unsharingを用いたMode Collapseの回避}
+\author{raven(Kai Katsumata)}
+\institute[JPN]{SL B2 \\ 親 ryoga}
+
+\begin{document}
+
+\begin{frame}\frametitle{}
+  \maketitle
+\end{frame}
+
+\begin{frame}{背景}
+  自動運転の研究開発においてデータセットの作成やVirtual EvaluationなどでGANが用いられることが増えてきた。
+\end{frame}
+
+\begin{frame}{本研究の目的}
+
+  \begin{itemize}
+  \item GANの問題点であるMode Collapseの回避
+  \item 多様な表現を出力するGANの生成
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{関連研究}
+
+  \begin{block}{Unrolled}
+    Visual Question Answering(VQA)に対する答えの解釈性を高めたVickiを提案。Vickiの答えをGrad-CAMおよび類似手法であるco attentionで可視化し、
+    モデルを評価した。
+  \end{block}
+
+\end{frame}
+
+
+\begin{frame}{手法}
+
+目的関数を
+
+\begin{eqnarray}
+  \label{unshare}
+  \tilde{\mathcal{L}}(w; X, y, w') =  \frac{\alpha}{2} (w - w')^{\top}(w - w')+ \mathcal{L}(w; X, y)  
+\end{eqnarray}
+
+
+のように定義する
+  
+\end{frame}
+
+\begin{frame}{実験}
+  多項式フィッテイング \\
+  $X = {1, 2, 3, 4, 5,...}, y = {4, 16, 36, 64, 100,..}$. \\
+  $y = (2x)^{2}$もしくは$y = (-2x)^{2}$.
+\end{frame}
+\begin{frame}
+  GAN（混合正規分布）
+  平均をずらした正規分布の混合分布から生成させたデータを生成させる。
+  2,3,4つの正規分布の混合分布を生成させた.
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[htb]
+    \begin{center}
+      \includegraphics[width=10cm]{2_mixture_true.png}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[htb]
+    \begin{center}
+      \includegraphics[width=\linewidth]{2_mixture_gan.png}
+    \end{center}
+  \end{figure}
+  
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[htb]
+    \begin{center}
+      \includegraphics[width=\linewidth]{3_mixture_true.png}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[htb]
+    \begin{center}
+      \includegraphics[width=\linewidth]{3_mixture_gan.png}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[htb]
+    \begin{center}
+      \includegraphics[width=\linewidth]{4_mixture_true.png}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[htb]
+    \begin{center}
+      \includegraphics[width=\linewidth]{4_mixture_gan.png}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{他手法との組み合わせ}
+  \begin{figure}[htb]
+    \begin{center}
+      \includegraphics[width=\linewidth]{unrolled.png}
+    \end{center}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{今後の展望}
+  \begin{itemize}
+  \item 今回はFeed Forward Network及び単純なGenerative Adversarial Networkにおいて提案手法が有効であることを検証した.
+    今後は画像を生成するような複雑なGANについても検証していく必要がある.
+  \item 他の安定化手法との比較が不十分であるため要検証.
+  \item 他の安定化手法と組み合わせた際に同様の分布を捉えているものの、若干異なる表現を行うように学習することが確認できた.
+    この特性がデータセットの拡充などに利用できるか検証する必要がある.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{参考文献}
+  \beamertemplatetextbibitems
+\bibliographystyle{jplain}
+\bibliography{beamer}
+\end{frame}
+
+\end{document}
