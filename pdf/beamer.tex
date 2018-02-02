@@ -6,6 +6,9 @@
 \usetheme{CambridgeUS}
 \usecolortheme{dolphin}
 \setbeamertemplate{footline}[frame number]
+\setbeamertemplate{caption}[numbered]
+\renewcommand{\figurename}{図}
+\renewcommand{\tablename}{表}
 \logo{\includegraphics[width=1cm]{img/logo.png}}
 
 \usefonttheme{professionalfonts}
@@ -21,15 +24,25 @@
 \end{frame}
 
 \begin{frame}{背景}
-  自動運転の研究開発においてデータセットの作成やVirtual EvaluationなどでGANが用いられることが増えてきた。
+  自動運転の研究開発においてデータセットの作成やVirtual EvaluationなどでGAN\cite{gan}が用いられることが増えてきた。
 \end{frame}
 
 \begin{frame}{背景2}
   \begin{itemize}
-  \item 高解像度の町並みの生成
-  \item 生成する画像のコントロール
-  \item 自動車のシミュレータのリアリスティック化
-  \end{itemie}
+  \item 高解像度の町並みの生成\cite{pix2pixhd}
+  \item 生成する画像のコントロール\cite{pix2pixhd}
+  \item 自動車のシミュレータのリアリスティック化\cite{simgan}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{GANの課題}
+  Mode Collapseと呼ばれる現象が発生する
+  \begin{figure}[htb]
+    \centering
+    \includegraphics[height=6cm]{collapse.png}
+    \vspace*{-1cm}    
+    \caption{Collapseの例: {\scriptsize http://musyoku.github.io/2017/04/16/Boundary-Equilibrium-Generative-Adversarial-Networks/ より引用} \label{fig:collapse}}
+  \end{figure}  
 \end{frame}
 
 \begin{frame}{本研究の目的}
@@ -50,15 +63,27 @@
   \end{block}
 \end{frame}
 
+\begin{frame}{既存研究の課題}
+  \begin{itemize}
+  \item 計算コストが高い
+  \item Semi Supervised Learningで利用ができない
+  \item 一定の解に収束しやすくなる（何回学習をしても同じ表現しか得られない）
+  \end{itemize}
+\end{frame}
 
-\begin{frame}{手法}
+\begin{frame}{提案手法}
+  過去に学習したモデルの重みから遠ざけるように学習させることで
+  別の局所最適解を探索させる
+\end{frame}
+
+\begin{frame}{提案手法}
 
 目的関数を
 
-\begin{eqnarray}
+\begin{equation}
   \label{unshare}
   \tilde{\mathcal{L}}(w; X, y, w') =  (\frac{\alpha}{2} (w - w')^{\top}(w - w'))^{-1} + \mathcal{L}(w; X, y)  
-\end{eqnarray}
+\end{equation}
 
 
 のように定義する
@@ -71,10 +96,10 @@
   $y = (2x)^{2}$もしくは$y = (-2x)^{2}$. \\
   目的関数は
   
-  \begin{eqnarray}
+  \begin{equation}
     \label{regression}
     \mathcal{L}(w; X, y, w') =  \frac{\alpha}{2} (w - w')^{\top}(w - w') + (f(X) - y)^{2} 
-  \end{eqnarray}      
+  \end{equation}      
 \end{frame}
 
 \begin{frame}
@@ -83,67 +108,45 @@
   2,3,4つの正規分布の混合分布を生成させた. \\
   目的関数は
   
-  \begin{eqnarray}
+  \begin{equation}
     \label{gan}
-    \mathcal{L}(\theta_{G}, \theta_{D}, \theta'_{G}) &  = &  \frac{\alpha}{2} (\theta_{G} - \theta'_{G})^{\top}(\theta_{G} - \theta'_{G})   +  \mathbb{E}_{x\sim p_{data}} [ \log(D(x; \theta_{D})) ]   \nonumber \\
-    & & + \mathbb{E}_{z\sim \mathcal{N}(0, I)} [ \log(1 - D(G(z;\theta_{G}); \theta_{D})) ]
-  \end{eqnarray}        
-\end{frame}
-
-\begin{frame}{2 mixture distribution}
-  \begin{figure}[htb]
-    \begin{center}
-      \includegraphics[height=7cm]{2_mixture_true.png}
-    \end{center}
-  \end{figure}
+    \mathcal{L}(\theta_{G}, \theta_{D}, \theta'_{G})  =  \frac{\alpha}{2} (\theta_{G} - \theta'_{G})^{\top}(\theta_{G} - \theta'_{G})   +  \mathbb{E}_{x\sim p_{data}} [ \log(D(x; \theta_{D})) ]   
+     + \mathbb{E}_{z\sim \mathcal{N}(0, I)} [ \log(1 - D(G(z;\theta_{G}); \theta_{D})) ]
+  \end{equation}        
 \end{frame}
 
 \begin{frame}
   \begin{figure}[htb]
-    \begin{center}
-      \includegraphics[width=\linewidth]{2_mixture_gan.png}
-    \end{center}
-  \end{figure}
-  
-\end{frame}
-
-\begin{frame}{3 mixture distribution}
-  \begin{figure}[htb]
-    \begin{center}
-      \includegraphics[height=7cm]{3_mixture_true.png}
-    \end{center}
+    \centering    
+    \includegraphics[width=\linewidth]{true.png}
   \end{figure}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{mixture of 2 distribution}
   \begin{figure}[htb]
-    \begin{center}
-      \includegraphics[width=\linewidth]{3_mixture_gan.png}
-    \end{center}
+    \centering        
+    \includegraphics[width=\linewidth]{2_mixture_gan.png}
   \end{figure}
 \end{frame}
 
-\begin{frame}{4 mixture distribution}
+\begin{frame}{mixture of 3 distribution}
   \begin{figure}[htb]
-    \begin{center}
-      \includegraphics[height=7cm]{4_mixture_true.png}
-    \end{center}
+    \centering    
+    \includegraphics[width=\linewidth]{3_mixture_gan.png}
   \end{figure}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{mixture of 4 distribution}
   \begin{figure}[htb]
-    \begin{center}
-      \includegraphics[width=\linewidth]{4_mixture_gan.png}
-    \end{center}
+    \centering        
+    \includegraphics[width=\linewidth]{4_mixture_gan.png}
   \end{figure}
 \end{frame}
 
 \begin{frame}{他手法との組み合わせ}
   \begin{figure}[htb]
-    \begin{center}
+    \centering        
       \includegraphics[width=\linewidth]{unrolled.png}
-    \end{center}
   \end{figure}
 \end{frame}
 
@@ -159,7 +162,7 @@
 \begin{frame}[allowframebreaks]{参考文献}
   \beamertemplatetextbibitems
 \bibliographystyle{jplain}
-\bibliography{beamer}
+\bibliography{ref}
 \end{frame}
 
 \end{document}
