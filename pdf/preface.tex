@@ -35,21 +35,26 @@
 
 \section{序論}
 
-自動運転の研究開発において, virtual evaluationの利用が活発になってきている.
-近年のvirtual evaluationでは実運用での精度を担保するためにGANを用いてシミュレーション環境をより現実的にしたり, 
-データセットを拡充したりすることも多い.
+自動運転の研究開発において, シミュレーション環境を用いて機械学習モデルの学習や評価を行うvirtual evaluationの利用が活発になってきている.
+近年のvirtual evaluationでは実運用での精度を担保するためにGANと呼ばれる手法を用いてシミュレーション環境をより現実的にしたり, 
+データセットを拡充したりすることも多くなってきている.
+GANとはGeneratorとDiscriminatorと呼ばれるニューラルネットワークを交互に学習させることでデータを生成する生成モデルである.
 
 しかしGAN\cite{gan}の研究はまだまだ発展途上であり, いくつかの問題の存在が研究開発の発展を妨げている\cite{tutorial}.
 1つはGANはGeneratorとDiscriminatorがお互いに競合しあい学習していく手法であり, 収束しないことがある.
 また, Mode Collapseという現象により, 訓練に利用したデータとは似ても似つかない出力をするようになったり,
 定数を出力するようになったりする.
-これらの問題に対してはいくつかの研究によって回避が試みられている.
+本稿では、GANにおけるMode Collapseが引き起こされるという問題を回避する手法を提案する.
 
 \section{関連研究}
 
 {\bf Avoid Mode Collapse on GANs} Mode Collapseを回避する方法としてWGAN\cite{wgan}, Unrolled GAN\cite{unrolled}, PacGAN\cite{pacgan}などが提案されている.
-WGANではWasserstain距離を定義し, Wasserstain距離に基いて学習を行っている.PacGANではミニバッチ中のデータ全てを
-1つのデータとして捉えることでデータの分布をより正確に捉えることに成功した.WGANやUnrolled GANは計算コストが高いという
+WGANではWasserstein距離を定義し, Wasserstein距離に基いて学習を行っている.
+Wasserstein距離は出力される画像の質と相関があるように定義されており, これを最小化するように学習することでMode Collapseを起こさず, 高品質の画像を出力できる.
+Unrolled GANでは少し未来のDiscriminatorに対してGeneratorを学習させることで学習の安定化に成功した.
+PacGANではミニバッチ中のデータ全てを
+1つのデータとして捉えることでデータの分布を近似し, Mode Collapseの回避に成功した.
+WGANやUnrolled GANは計算コストが高いという
 問題点が知られている. またPacGANではDiscriminatorの入力サイズがミニバッチ中の画像を1つの画像として扱うため
 Semi Supervised Learningに利用することが出来ない.
 
